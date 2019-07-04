@@ -8,6 +8,7 @@ RUN /tmp/jira.bin -q -dir /opt/jira
 RUN mkdir -p /opt/jira/conf
 RUN chown -R jira:jira /opt/jira
 WORKDIR /opt/jira
-USER jira
 COPY ./entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+USER jira
 CMD ["/entrypoint.sh"]

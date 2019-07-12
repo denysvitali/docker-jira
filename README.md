@@ -1,5 +1,6 @@
 # docker-jira
-[![Build Status](https://drone.ded1.denv.it/api/badges/denysvitali/docker-jira/status.svg)](https://drone.ded1.denv.it/denysvitali/docker-jira)
+[![Build Status](https://drone.ded1.denv.it/api/badges/denysvitali/docker-jira/status.svg)](https://drone.ded1.denv.it/denysvitali/docker-jira)  
+  
 Jira images for Docker, built daily
 
 

@@ -1,4 +1,4 @@
-FROM ubuntu:disco
+FROM ubuntu:focal
 ARG VERSION
 RUN apt update
 RUN apt install -y wget xmlstarlet fontconfig

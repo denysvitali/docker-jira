@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 IMAGE_NAME="jira"
-SOFTWARE="jira-core"
+SOFTWARE="jira-software"
 
 BUILD_EAP=0
 
@@ -28,7 +28,7 @@ fi
 # Get latest Jira Version
 echo "Getting latest version feed..."
 if [ $BUILD_EAP -eq 1 ]; then
-  RSS_URL="https://my.atlassian.com/download/feeds/eap/${SOFTWARE/-core/}.rss"
+  RSS_URL="https://my.atlassian.com/download/feeds/eap/${SOFTWARE}.rss"
   echo "Building EAP"
 	RSS_FILE=$(curl $RSS_URL)
   VERSIONS=$(echo -en "$RSS_FILE" | xmlstarlet sel -t -v '/rss/channel/item/link/text()' -n -)

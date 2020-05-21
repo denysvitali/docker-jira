@@ -41,7 +41,7 @@ fi
 LINUX_BIN=$(echo -n "$VERSIONS" | grep '\.bin$')
 LINUX_BIN=$(echo -e "$LINUX_BIN" | grep $SOFTWARE)
 
-CURRENT_VERSION=$(echo "$LINUX_BIN" | sed -e "s@https://www.atlassian.com/software/${SOFTWARE/-core/}/downloads/binary/atlassian-$SOFTWARE-@@" -e 's/-x64.bin//' | head -n 1)
+CURRENT_VERSION=$(echo "$LINUX_BIN" | sed -e "s@https://www.atlassian.com/software/${SOFTWARE/-software/}/downloads/binary/atlassian-$SOFTWARE-@@" -e 's/-x64.bin//' | head -n 1)
 CURRENT_MAJOR=$(echo "$CURRENT_VERSION" | cut -d '.' -f 1)
 CURRENT_MINOR=$(echo "$CURRENT_VERSION" | cut -d '.' -f 2)
 CURRENT_PATCH=$(echo "$CURRENT_VERSION" | cut -d '.' -f 3)

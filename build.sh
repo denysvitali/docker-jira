@@ -2,18 +2,24 @@
 set -e
 IMAGE_NAME="jira"
 SOFTWARE="jira-software"
+SOFTWARE_SHORT="jira"
 
 BUILD_EAP=0
 
 function usage(){
-  echo "Usage $0 [-e]"
+  echo "Usage $0 [-e] [-v 8.9.0]"
   exit 0
 }
 
-while getopts ":e" o; do
+CURRENT_VERSION=""
+
+while getopts "v:e" o; do
     case "${o}" in
         e)
             BUILD_EAP=1
+            ;;
+        v)
+            CURRENT_VERSION="$OPTARG"
             ;;
         *)
             usage
@@ -25,23 +31,27 @@ if [ $BUILD_EAP -eq 1 ]; then
   echo "Building EAP"
 fi
 
-# Get latest Jira Version
-echo "Getting latest version feed..."
-if [ $BUILD_EAP -eq 1 ]; then
-  RSS_URL="https://my.atlassian.com/download/feeds/eap/${SOFTWARE}.rss"
-  echo "Building EAP"
-	RSS_FILE=$(curl $RSS_URL)
-  VERSIONS=$(echo -en "$RSS_FILE" | xmlstarlet sel -t -v '/rss/channel/item/link/text()' -n -)
-else
-  RSS_URL="https://my.atlassian.com/download/feeds/${SOFTWARE}.rss"
-	RSS_FILE=$(curl $RSS_URL)
-	VERSIONS=$(echo "$RSS_FILE" | xmlstarlet sel -t -v '/rss/channel/item/guid/text()' -)
+
+if [ "$CURRENT_VERSION" == "" ]; then
+  # Get latest Jira Version
+  echo "Getting latest version feed..."
+  if [ $BUILD_EAP -eq 1 ]; then
+    RSS_URL="https://my.atlassian.com/download/feeds/eap/${SOFTWARE_SHORT}.rss"
+    echo "Building EAP"
+  	RSS_FILE=$(curl $RSS_URL)
+    VERSIONS=$(echo -en "$RSS_FILE" | xmlstarlet sel -t -v '/rss/channel/item/link/text()' -n -)
+  else
+    RSS_URL="https://my.atlassian.com/download/feeds/${SOFTWARE_SHORT}.rss"
+  	RSS_FILE=$(curl $RSS_URL)
+  	VERSIONS=$(echo "$RSS_FILE" | xmlstarlet sel -t -v '/rss/channel/item/guid/text()' -)
+  fi
+  
+  LINUX_BIN=$(echo -n "$VERSIONS" | grep '\.bin$')
+  LINUX_BIN=$(echo -e "$LINUX_BIN" | grep $SOFTWARE)
+  
+  CURRENT_VERSION=$(echo "$LINUX_BIN" | sed -e "s@https://www.atlassian.com/software/${SOFTWARE/-software/}/downloads/binary/atlassian-$SOFTWARE-@@" -e 's/-x64.bin//' | head -n 1)
 fi
 
-LINUX_BIN=$(echo -n "$VERSIONS" | grep '\.bin$')
-LINUX_BIN=$(echo -e "$LINUX_BIN" | grep $SOFTWARE)
-
-CURRENT_VERSION=$(echo "$LINUX_BIN" | sed -e "s@https://www.atlassian.com/software/${SOFTWARE/-software/}/downloads/binary/atlassian-$SOFTWARE-@@" -e 's/-x64.bin//' | head -n 1)
 CURRENT_MAJOR=$(echo "$CURRENT_VERSION" | cut -d '.' -f 1)
 CURRENT_MINOR=$(echo "$CURRENT_VERSION" | cut -d '.' -f 2)
 CURRENT_PATCH=$(echo "$CURRENT_VERSION" | cut -d '.' -f 3)
@@ -74,5 +84,6 @@ else
 
 	docker push "dvitali/${IMAGE_NAME}:${CURRENT_MAJOR}"
 	docker push "dvitali/${IMAGE_NAME}:${CURRENT_MAJOR}.${CURRENT_MINOR}"
+	docker push "dvitali/${IMAGE_NAME}:${CURRENT_MAJOR}.${CURRENT_MINOR}.${CURRENT_PATCH}"
 	docker push "dvitali/${IMAGE_NAME}:latest"
 fi
